@@ -9,7 +9,9 @@ def plotar_estrutura(nodes, elements):
   ax.set_box_aspect((np.ptp(nodes[:,0]), np.ptp(nodes[:,1]), np.ptp(nodes[:,2])))
   ax.set_xlabel('X (m)'); ax.set_ylabel('Y (m)'); ax.set_zlabel('Z (m)')
   ax.set_title('Estrutura Original (Não Deformada)'); ax.view_init(elev=25., azim=-100)
-  plt.grid(True); plt.show()
+  plt.grid(True)
+  plt.savefig('plots/trelica_exemplo')
+  plt.show()
 
 def plotar_estrutura_deformada(nodes, elements, U, escala_deformacao):
 
@@ -52,6 +54,7 @@ def plotar_estrutura_deformada(nodes, elements, U, escala_deformacao):
     #ax.view_init(elev=90, azim=-90)
 
     plt.grid(True)
+    plt.savefig('plots/trelica_deformada_exemplo')
     plt.show()
 
 def plotar_tensoes(nodes, elements, stresses, U, escala_deformacao):
@@ -73,4 +76,6 @@ def plotar_tensoes(nodes, elements, stresses, U, escala_deformacao):
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm); sm.set_array([])
     cbar = fig.colorbar(sm, shrink=0.8, aspect=10, ax=ax, pad=0.1)
     cbar.set_label('Tensão Axial (Pa) ')
-    ax.view_init(elev=25., azim=-100); plt.grid(True); plt.show()
+    ax.view_init(elev=25., azim=-100); plt.grid(True)
+    plt.savefig('plots/trelica_tensoes_exemplo')
+    plt.show()
