@@ -1,7 +1,7 @@
-import math
 import numpy as np
+import math
 import os
-
+import re
 
 def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
 
@@ -13,6 +13,14 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
     dz = (zf - z0)/num_segmentos
 
     nodes = []
+
+    # =====================
+    # CONTROLE INTERNO: número de elementos por barra
+    # 1  -> sem refinamento
+    # 2+ -> cada barra (elemento) é subdividida em 'num_elementos_por_barra' elementos
+    # Ajuste este valor para refinar a malha.
+    num_elementos_por_barra = 2
+    # =====================
 
     # --- LÓGICA CONDICIONAL PARA GERAÇÃO DE NÓS ---
     if ID == 1 or ID == 2:
@@ -91,6 +99,33 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
 
     elements = np.array(list(set(map(tuple, map(sorted, elements)))))
 
+    # --- REFINAMENTO: subdividir cada barra em múltiplos elementos ---
+    if num_elementos_por_barra is not None and int(num_elementos_por_barra) > 1:
+      nodes_list = nodes.tolist()  # mantém IDs 1-based na escrita
+      refined_elements = []
+
+      for elem in elements:
+        n1_id = int(elem[0])
+        n2_id = int(elem[1])
+
+        p1 = np.array(nodes_list[n1_id - 1], dtype=float)
+        p2 = np.array(nodes_list[n2_id - 1], dtype=float)
+
+        prev_id = n1_id
+        ndiv = int(num_elementos_por_barra)
+        for div in range(1, ndiv):
+          t = div / float(ndiv)
+          novo_no = (1.0 - t) * p1 + t * p2
+          nodes_list.append(novo_no.tolist())
+          novo_id = len(nodes_list)  # ID 1-based
+          refined_elements.append((prev_id, novo_id))
+          prev_id = novo_id
+
+        refined_elements.append((prev_id, n2_id))
+
+      nodes = np.array(nodes_list, dtype=float)
+      elements = np.array(list(set(map(tuple, map(sorted, refined_elements)))) , dtype=int)
+
 
     # --- NOMEANDO ARQUIVOS .GEO ---
     geo_path=f'data/{filename}'
@@ -110,4 +145,71 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
         for i, elem in enumerate(elements):
             f.write(f"{i+1:8d}{elem[0]:8d}{elem[1]:8d}\n")
 
-    print(f"Arquivo '{filename}' gerado com sucesso.")
+
+def geo_reader(filename):
+
+    nodes = []
+    elements = []
+    
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+    
+    i = 0
+    num_lines = len(lines)
+    
+    # Skip header lines
+    while i < num_lines and lines[i].strip() != "coordinates":
+        i += 1
+    
+    # Parse nodes
+    if i < num_lines and lines[i].strip() == "coordinates":
+        i += 1
+        
+        # Read number of nodes
+        num_nodes = int(lines[i].strip())
+        i += 1
+        
+        # Read node data
+        for _ in range(num_nodes):
+            line = lines[i].strip()
+            i += 1
+            
+            line = re.sub(r'(\d)(-)', r'\1 \2', line)
+            
+            parts = line.split()
+            if len(parts) >= 4:
+                x = float(parts[1])
+                y = float(parts[2])
+                z = float(parts[3])
+                nodes.append((x, y, z))
+
+    nodes = np.array(nodes)
+    
+    # Skip to elements section
+    while i < num_lines and not (lines[i].strip().startswith("bar") or lines[i].strip().startswith("bar2")):
+        i += 1
+    
+    # Parse elements
+    if i < num_lines and (lines[i].strip() == "bar2" or lines[i].strip().startswith("bar")):
+        i += 1
+        
+        # Read number of elements
+        num_elements = int(lines[i].strip())
+        i += 1
+        
+        # Read element data
+        for _ in range(num_elements):
+            line = lines[i].strip()
+            i += 1
+            
+            parts = line.split()
+            if len(parts) >= 3:
+                # Extract connected nodes (bar2 elements have 2 nodes)
+                node1 = int(parts[1])
+                node2 = int(parts[2])
+                elements.append((node1, node2))
+                
+    elements = np.array(list(set(map(tuple, map(sorted, elements)))))
+    
+    
+    return nodes, elements
