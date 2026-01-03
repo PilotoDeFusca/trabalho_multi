@@ -4,6 +4,7 @@ import os
 import re
 
 def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
+    num_segmentos=int(num_segmentos)
 
     x0, y0, z0 = 0.0, 0.0, 0.0
     xf, yf, zf = ponto_final
