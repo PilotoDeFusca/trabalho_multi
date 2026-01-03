@@ -130,8 +130,8 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
     # --- NOMEANDO ARQUIVOS .GEO ---
     geo_path=f'data/{filename}'
     geo_path_id=1
-    while os.path.exists(f'../data/{filename}'+str(geo_path_id)):
-       geo_path_id+=1
+    #while os.path.exists(f'../data/{filename}'+str(geo_path_id)):
+    #   geo_path_id+=1
     geo_path+=str(geo_path_id)+'.geo'
 
     with open(geo_path, 'w') as f:
