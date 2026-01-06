@@ -66,11 +66,11 @@ parameters_bat = {
 
 # GA - Parameters
 parameters_ga = {
-    'population_size': 250,
-    'min_values': (-5, -5),
-    'max_values': (5, 5),
-    'generations': 200,
-    'mutation_rate': 0.1,
+    'population_size': 10,
+    'min_values': (8,3,3,-30.0,0.0,15.0),
+    'max_values': (15.9,10,10,-30.0,0.0,15.0),
+    'generations': 10,
+    'mutation_rate': 0.3,
     'elite': 1,
     'eta': 1,
     'mu': 1,
@@ -79,13 +79,16 @@ parameters_ga = {
 	  'target_value': None
 }
 
-#objective_function([8,5,5,-30,0,15])
+objective_function([8,5,5,-30,0,15])
 
-bat = bat_algorithm(target_function = objective_function, **parameters_bat)
+#bat = bat_algorithm(target_function = objective_function, **parameters_bat)
 
-variables = bat[:-1]
-minimum   = bat[ -1]
+#variables = bat[:-1]
+#minimum   = bat[ -1]
+#print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
+
+ga = genetic_algorithm(target_function = objective_function, **parameters_ga)
+
+variables = ga[:-1]
+minimum   = ga[ -1]
 print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
-
-#ga = genetic_algorithm(target_function = objective_function, **parameters_ga)
-
