@@ -79,3 +79,5 @@ def plotar_tensoes(nodes, elements, stresses, U, escala_deformacao):
     ax.view_init(elev=25., azim=-100); plt.grid(True)
     plt.savefig('plots/trelica_tensoes_exemplo')
     plt.show()
+    
+    

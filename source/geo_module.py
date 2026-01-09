@@ -3,7 +3,7 @@ import math
 import os
 import re
 
-def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
+def geo_generator(filename, data_path, num_segmentos, l_base, h_base,  ponto_final, ID):
     num_segmentos=int(num_segmentos)
     ID=int(ID)
 
@@ -130,10 +130,10 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
 
 
     # --- NOMEANDO ARQUIVOS .GEO ---
-    geo_path=f'data/{filename}'
+    geo_path=data_path+filename
     geo_path_id=1
-    #while os.path.exists(f'../data/{filename}'+str(geo_path_id)):
-    #   geo_path_id+=1
+    while os.path.exists(geo_path+str(geo_path_id)+'.geo'):
+       geo_path_id+=1
     geo_path+=str(geo_path_id)+'.geo'
 
     with open(geo_path, 'w') as f:
@@ -146,6 +146,8 @@ def geo_generator(filename, num_segmentos, l_base, h_base,  ponto_final, ID):
         f.write(f"{len(elements):8d}\n")
         for i, elem in enumerate(elements):
             f.write(f"{i+1:8d}{elem[0]:8d}{elem[1]:8d}\n")
+        print(f'Arquivo {geo_path} escrito')
+    return  geo_path
 
 
 def geo_reader(filename):

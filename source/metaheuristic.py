@@ -3,10 +3,20 @@ from pyMetaheuristic.algorithm import genetic_algorithm
 import numpy as np
 from geo_module import *
 from solver import *
+from post import writer
+from data_clean import *
 
-def objective_function(vetor_variaveis=[8,5,5,-30,0,15]):
+data_path='data/'
+filename='trelica'
+objective_path=data_path+'/objetive_funcion_values.txt'
+clean_path=data_path+'*'
 
-    num_segmentos,l_base, h_base, ponto_final_x, ponto_final_y, ponto_final_z= vetor_variaveis
+data_clean(clean_path)
+
+
+def objective_function(vetor_variaveis=[8,5,5,-30,0,15,3]):
+
+    num_segmentos,l_base, h_base, ponto_final_x, ponto_final_y, ponto_final_z,id_trelica= vetor_variaveis
 
     penalidadeTC=0
     penalidadeFb=0
@@ -16,18 +26,9 @@ def objective_function(vetor_variaveis=[8,5,5,-30,0,15]):
 
     ponto_final=(ponto_final_x,ponto_final_y,ponto_final_z)
 
-    #geo_generator(filename='teste_heuristica', num_segmentos = 8, l_base = 5, h_base = 5, ponto_final = (-30.0, 0.0, 15.0), ID = 1)
-    geo_generator(filename, num_segmentos, l_base, h_base, ponto_final, ID=1)
-    nodes,elements = geo_reader(data_path+'teste_heuristica1.geo')
-    deslocamentos, tensoes, elementos_falha, lambdas = fem_solver_3d(nodes, elements-1, ID=1)
-
-    #print(f'Deslocamentos: {deslocamentos}')
-    #print(f'Tensões: {tensoes}')
-    #print(f'Elementos falha: {elementos_falha}')
-    #print(f'lambdas: {lambdas}')
-    #print(f'Nós: {nodes}')
-    #print(f'Elementos: {elements}')
-
+    geo_path=geo_generator(filename, data_path, num_segmentos, l_base, h_base, ponto_final, id_trelica)
+    nodes,elements = geo_reader(geo_path)
+    deslocamentos, tensoes, elementos_falha, lambdas = fem_solver_3d(nodes, elements-1, id_trelica)
 
     # Massa da estrutura
     densidade_aco = 7330.0; area_secao = 0.005; g = 9.81
@@ -47,48 +48,53 @@ def objective_function(vetor_variaveis=[8,5,5,-30,0,15]):
 
     valor_objetivo=massa_total_kg+penalidadeTC+penalidadeFb
     print(valor_objetivo)
+    writer(nodes, elements-1, elementos_falha, deslocamentos, tensoes, lambdas, valor_objetivo, objective_path)
+        
     return valor_objetivo
 
+def run_bat():
 
-parameters_bat = {
-    'swarm_size': 10,
-    'min_values': (8,3,3,-30.0,0.0,15.0),
-    'max_values': (15.9,10,10,-30.0,0.0,15.0),
-    'iterations': 10,
-    'alpha': 0.8,
-    'gama': 0.8,
-    'fmin': 0,
-    'fmax': 900000000000,
-	  'verbose': True,
-	  'start_init': None,
-	  'target_value': None
-}
+    #Bat - Parameters
+    parameters_bat = {
+        'swarm_size': 10,
+        'min_values': (8,3,3,-30.0,0.0,15.0,2),
+        'max_values': (15.9,10,10,-30.0,0.0,15.0,2),
+        'iterations': 10,
+        'alpha': 0.8,
+        'gama': 0.8,
+        'fmin': 0,
+        'fmax': 900000000000,
+        'verbose': True,
+        'start_init': None,
+        'target_value': None
+    }
+    
+    bat = bat_algorithm(target_function = objective_function, **parameters_bat)
 
+    variables = bat[:-1]
+    minimum   = bat[ -1]
+    print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
+
+def run_ga():
 # GA - Parameters
-parameters_ga = {
-    'population_size': 10,
-    'min_values': (8,3,3,-30.0,0.0,15.0),
-    'max_values': (15.9,10,10,-30.0,0.0,15.0),
-    'generations': 10,
-    'mutation_rate': 0.3,
-    'elite': 1,
-    'eta': 1,
-    'mu': 1,
-	  'verbose': True,
-	  'start_init': None,
-	  'target_value': None
-}
+    parameters_ga = {
+        'population_size': 10,
+        'min_values': (8,3,3,-30.0,0.0,15.0,3),
+        'max_values': (15.9,10,10,-30.0,0.0,15.0,3),
+        'generations': 10,
+        'mutation_rate': 0.3,
+        'elite': 1,
+        'eta': 1,
+        'mu': 1,
+        'verbose': True,
+        'start_init': None,
+        'target_value': None
+    }
 
-objective_function([8,5,5,-30,0,15])
+    ga = genetic_algorithm(target_function = objective_function, **parameters_ga)
 
-#bat = bat_algorithm(target_function = objective_function, **parameters_bat)
-
-#variables = bat[:-1]
-#minimum   = bat[ -1]
-#print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
-
-ga = genetic_algorithm(target_function = objective_function, **parameters_ga)
-
-variables = ga[:-1]
-minimum   = ga[ -1]
-print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
+    variables = ga[:-1]
+    minimum   = ga[ -1]
+    print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
+    
+run_bat()
