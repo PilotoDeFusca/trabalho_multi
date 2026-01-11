@@ -14,7 +14,7 @@ clean_path=data_path+'*'
 data_clean(clean_path)
 
 
-def objective_function(vetor_variaveis=[8,5,5,-30,0,15,3]):
+def objective_function(vetor_variaveis=[8,5,5,-30,0,15,2]):
 
     num_segmentos,l_base, h_base, ponto_final_x, ponto_final_y, ponto_final_z,id_trelica= vetor_variaveis
 
@@ -28,7 +28,8 @@ def objective_function(vetor_variaveis=[8,5,5,-30,0,15,3]):
 
     geo_path=geo_generator(filename, data_path, num_segmentos, l_base, h_base, ponto_final, id_trelica)
     nodes,elements = geo_reader(geo_path)
-    deslocamentos, tensoes, elementos_falha, lambdas = fem_solver_3d(nodes, elements-1, id_trelica)
+    deslocamentos, tensoes, elementos_falha, lambdas = fem_solver_3d(nodes, elements-1, ID=id_trelica)
+    print(f'Flambagem: {lambdas}') 
 
     # Massa da estrutura
     densidade_aco = 7330.0; area_secao = 0.005; g = 9.81
@@ -40,8 +41,10 @@ def objective_function(vetor_variaveis=[8,5,5,-30,0,15,3]):
         volume_total += area_secao*comprimento_barra
     massa_total_kg = volume_total*densidade_aco
 
-    if len(elementos_falha)!=0:
-        penalidadeTC+=1000000000
+    # Penalidade por falha em tração/compressão - penaliza cada elemento que falha
+    penalidadeTC = 1000000000 * len(elementos_falha) if len(elementos_falha) > 0 else 0
+    
+    # Penalidade por flambagem - penaliza proporcionalmente a quanto está abaixo de 1
     for flambagem in lambdas:
         if flambagem <= 1:
             penalidadeFb+=1000000000
@@ -57,8 +60,8 @@ def run_bat():
     #Bat - Parameters
     parameters_bat = {
         'swarm_size': 10,
-        'min_values': (8,3,3,-30.0,0.0,15.0,2),
-        'max_values': (15.9,10,10,-30.0,0.0,15.0,2),
+        'min_values': (8,3,3,-30.0,0.0,15.0,1),
+        'max_values': (20.9,15,15,-30.0,0.0,15.0,2.9),
         'iterations': 10,
         'alpha': 0.8,
         'gama': 0.8,

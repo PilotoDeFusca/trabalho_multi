@@ -172,6 +172,7 @@ def fem_solver_3d(nodes, elements, ID, num_modos=5):
         tensoes[i] = tensao_critica
         if abs(tensao_critica) > sigma_y:
             elementos_falha.append(i)   # Verifica falha por tensão máxima que o material suporta
+            print(f'Falha encontrada: {elementos_falha}')
 
       # ----------------------------------   # CERTO ATÉ AQUI TENSÕES OK F_axial OK (VERIFICADO NO FEMAP)
 
@@ -210,7 +211,7 @@ def fem_solver_3d(nodes, elements, ID, num_modos=5):
 
   ###########################################################################################
 
-  # Análise de flambagem (problema de autovalores)           - ERRADO, DIFERENTE DO FEMAP
+  # Análise de flambagem (problema de autovalores)           
   ###########################################################################################
 
     K_g_f = K_geom[np.ix_(active_dofs, active_dofs)]    # Matriz geométrica dofs ativos
@@ -222,7 +223,8 @@ def fem_solver_3d(nodes, elements, ID, num_modos=5):
     
     lambdas_inv = vals[valid_indices]
     lambdas = 1.0/lambdas_inv
-    lambdas = np.sort(lambdas)[:num_modos] 
+    lambdas = np.sort(lambdas)[:num_modos]
+    
 
   ###########################################################################################
 

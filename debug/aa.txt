@@ -1,0 +1,50 @@
+EXEMPLO 1
+
+print da heuristica
+Falha encontrada: [115]
+Falha encontrada: [115, 194]
+1000015297.6108738
+Arquivo data/teste_heuristica75.geo escrito
+
+Variables:  [  8.3152   3.       4.8649 -30.       0.      15.       3.    ]  Minimum Value Found:  1000015297.6109
+
+print da main
+PS C:\Users\ph458\OneDrive\Documents\VS Code\trabalho_multi> python .\source\main.py
+Arquivo data/trelica1.geo escrito
+Volume total: 2.0870 m^3
+Deslocamento translacional máximo: 0.2843 m
+Tensão máxima (Tração): 189229109.04457998 Pa
+Tensão mínima (Compressão): -170193352.2523315 Pa
+Massa total da estrutura: 15297.61 kg
+
+
+
+EXEMPLO 2
+
+print da heuristica
+Falha encontrada: [115]
+Falha encontrada: [115, 194]
+2000015498.881996
+Arquivo data/teste_heuristica87.geo escrito
+
+writer
+Valor funcao objetivo: 2000015498.88
+Volume total: 2.1144 m^3
+Deslocamento translacional maximo: 0.2872 m
+Tensao maxima (Tracao): 183690255.8860427 Pa
+Tensao minima (Compressao): -364597099.4679407 Pa
+Massa total da estrutura: 15498.88 kg
+Lista de elementos com falha: [115, 194]
+Fatores de carga criticos: [1.04041646 1.06313523 1.09733591 1.1388833  1.25975895]
+
+print da main
+PS C:\Users\ph458\OneDrive\Documents\VS Code\trabalho_multi> python .\source\main.py
+Arquivo data/trelica1.geo escrito
+Volume total: 2.1144 m^3
+Deslocamento translacional máximo: 0.2643 m
+Tensão máxima (Tração): 180430234.85105523 Pa
+Tensão mínima (Compressão): -163154983.5532767 Pa
+Massa total da estrutura: 15498.87 kg
+Lista de elementos com falha: []
+Fatores de carga críticos: [1.04663213 1.08002001 1.15618472 1.1925657  1.26994562]
+
